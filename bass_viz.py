@@ -8,4 +8,4 @@ from utils import set_logger
 logger = logging.getLogger("bass_viz.py")
 set_logger(logger)
 
-logger.info("Yo!")
+logger.info("Yo! nothing here. haha.")
