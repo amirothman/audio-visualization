@@ -8,7 +8,7 @@ from skimage.io import imread, imsave
 
 from utils import set_logger
 
-logger = logging.getLogger("bass_viz.py")
+logger = logging.getLogger("amplitude_viz.py")
 set_logger(logger)
 
 y, sr = librosa.load("data/input/drum-break.wav")
