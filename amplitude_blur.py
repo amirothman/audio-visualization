@@ -2,9 +2,10 @@ import logging
 
 import librosa
 from scipy import signal
-from sklearn.preprocessing import normalize
-from skimage.exposure import adjust_gamma
+from skimage.filters import gaussian
 from skimage.io import imread, imsave
+from sklearn.preprocessing import normalize
+
 
 from utils import set_logger
 
@@ -20,12 +21,16 @@ downsampled = signal.resample(y, int((24 / sr) * y.shape[0]))
 # can skip if wanna go crazier and more surprising
 normalized = normalize(downsampled.reshape(1, -1))
 normalized = normalized[0]
+normalized = normalized + min(normalized)
 
 input_image = imread("data/input/sample.jpg")
-constant = 20
+multiplier = 5
 
 for idx, val in enumerate(normalized):
-    output_frame = adjust_gamma(input_image, gain=constant * val)
-    fname = f"data/output/amplitude_viz/{idx:03}.png"
+    sigma = abs(val) * multiplier
+
+    output_frame = gaussian(input_image, sigma=sigma)
+    fname = f"data/output/amplitude_blur/{idx:03}.png"
+
     imsave(fname, output_frame)
-    logger.info(f"Saved {fname}")
+    logger.info(f"Saved {fname} with Sigma {sigma}")

@@ -3,9 +3,9 @@ import logging
 import librosa
 from scipy import signal
 from sklearn.preprocessing import normalize
-from skimage.exposure import adjust_gamma
 from skimage.io import imread, imsave
 
+from gotham import gotham
 from utils import set_logger
 
 logger = logging.getLogger(__name__)
@@ -22,10 +22,23 @@ normalized = normalize(downsampled.reshape(1, -1))
 normalized = normalized[0]
 
 input_image = imread("data/input/sample.jpg")
-constant = 20
+
+r_boost_upper_multiplier = 15
+b_adjusted_upper_multiplier = 12
+blurriness_multiplier = 20
+subtraction_multiplier = 0.8
+amount_bluer_blacks_multpilier = 0.01
 
 for idx, val in enumerate(normalized):
-    output_frame = adjust_gamma(input_image, gain=constant * val)
-    fname = f"data/output/amplitude_viz/{idx:03}.png"
+    output_frame = gotham(
+        input_image,
+        r_boost_upper=r_boost_upper_multiplier * val,
+        b_adjusted_upper=b_adjusted_upper_multiplier * val,
+        blurriness=blurriness_multiplier * val,
+        # subtraction=subtraction_multiplier * val,
+        # amount_bluer_blacks=amount_bluer_blacks_multpilier * val,
+    )
+    fname = f"data/output/gotham_amplitude_viz/{idx:03}.png"
+
     imsave(fname, output_frame)
     logger.info(f"Saved {fname}")
