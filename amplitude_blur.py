@@ -24,7 +24,7 @@ normalized = normalized[0]
 normalized = normalized + min(normalized)
 
 input_image = imread("data/input/sample.jpg")
-multiplier = 5
+multiplier = 20
 
 for idx, val in enumerate(normalized):
     sigma = abs(val) * multiplier
