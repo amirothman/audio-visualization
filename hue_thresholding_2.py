@@ -5,7 +5,7 @@ import librosa
 import numpy as np
 from scipy import signal
 from skimage import img_as_uint
-from skimage.color import rgb2hsv
+from skimage.color import rgb2hsv, hsv2rgb
 from skimage.io import imread, imsave
 from skimage.transform import resize
 
@@ -16,19 +16,26 @@ logger = logging.getLogger("hue_thresholding")
 set_logger(logger)
 
 
-def hue_threshold(input_image, threshold):
+def hue_level(input_image, level=0.3):
     hsv_img = rgb2hsv(input_image)
-    hue_img = hsv_img[:, :, 1]
+    saturation_img = hsv_img[:, :, 1]
+    saturation_adjusted = saturation_img + level
 
-    return hue_img > threshold
+    hsv_img[:, :, 1] = saturation_adjusted
+    return hsv2rgb(hsv_img)
 
 
 def build_image(input_image, val, idx):
-    threshold = abs(val) * 1 / 32
-    output_frame = hue_threshold(input_image, threshold)
-    fname = f"data/output/hue_thresholding/{idx:03}-b.png"
+
+    if val < 0.2:
+        level = val * 0.2 * 0.7
+    else:
+        level = min(float(np.exp(val)) * 0.1 + 0.5, 1.0) * 0.7
+
+    output_frame = hue_level(input_image, level=level)
+    fname = f"data/output/hue_leveling/{idx:03}-b.png"
     imsave(fname, img_as_uint(output_frame))
-    logger.info(f"Saved {fname} threshold: {threshold}")
+    logger.info(f"Saved {fname} level: {level}")
 
 
 y, sr = librosa.load("data/output/audio/bass_only.wav")
